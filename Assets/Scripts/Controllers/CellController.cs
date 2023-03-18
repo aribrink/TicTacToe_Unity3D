@@ -1,3 +1,4 @@
+using DG.Tweening;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
@@ -18,14 +19,14 @@ namespace Controllers
 
         private GameManager _gameManager;
         private string _currentValue = "";
-        private Vector2 cellPosition;
+        private int _cellId;
 
-        public void Init(in int x, in int y, GameManager manager)
+        public void Init(in int id, GameManager manager)
         {
             _gameManager = manager;
-            cellPosition.x = x;
-            cellPosition.y = y;
-            name = $"{x}_{y}";
+            _cellId = id;
+            
+            name = $"{_cellId}";
         }
         
         private void Set(string value)
@@ -35,12 +36,14 @@ namespace Controllers
             _currentValue = value;
             buttonImage.color = _currentValue == "X" ? xColor : oColor;
             valueLabel.text = $"{_currentValue}";
+            GetComponent<RectTransform>().DOScale(Vector3.one, 0.3f).From(Vector3.zero).SetEase(Ease.OutBack);
         }
 
         public void Move()
         {
+            if (_gameManager._gameState != GameManager.GameState.Active) return;
             Set(_gameManager.GetCurrentPlayer());
-            _gameManager.PlayerMove((int) cellPosition.x, (int) cellPosition.y);
+            _gameManager.PlayerMove(_cellId);
         }
     }
 }

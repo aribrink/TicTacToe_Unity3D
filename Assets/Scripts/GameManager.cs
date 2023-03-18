@@ -3,34 +3,38 @@ using System.Collections;
 using System.Collections.Generic;
 using Controllers;
 using Sirenix.OdinInspector;
+using UI;
 using UnityEngine;
 using Utils;
 
 public class GameManager : SerializedMonoBehaviour
 {
-    
     [Title("Settings")] 
-    public bool player1IsAi = false;
-    public bool player2IsAi = true;
-
+    public bool vsCpu = true;
+    public bool cpuPlaysFirst = false;
+    public bool easyMode = true;
+    
     [Title("References")] 
     public Transform grid;
     public GameObject cellPrefab;
 
-    [Space(20)] [TableMatrix] 
-    public string[][] cells = new string[3][];
+    // Public action For components that might needed
+    public static Action OnRestart;
+    public enum GameState { Locked, Active }
+    public GameState _gameState = GameState.Locked;
     
-    public string GetCurrentPlayer() => _currentPlayer;
-    
-    private Dictionary<string, CellController> _boardControllers = new Dictionary<string, CellController>();
+        
+    private readonly string[] _cells = new string[9];
+    private readonly CellController[] _cellControllers = new CellController[9];
     private const string Player1 = "X";
     private const string Player2 = "O";
     private string _currentPlayer;
-    private int _currentMove = 0;
     
 
     #region Basic Methods
 
+    public string GetCurrentPlayer() => _currentPlayer;
+    
     private void Start()
     {
         Restart();
@@ -38,34 +42,38 @@ public class GameManager : SerializedMonoBehaviour
 
     public void Restart()
     {
-        cells[0] = new string[3];
-        cells[1] = new string[3];
-        cells[2] = new string[3];
-        _currentPlayer = Player1;
-        _currentMove = 0;
+        // Fire the OnRestart Event
+        OnRestart?.Invoke();
+        
+        // Reset game values
+        _gameState = GameState.Active;
+        _currentPlayer = cpuPlaysFirst ? Player2 : Player1;
         Clear();
         CreateGrid();
+        
+        // Initiate the cpu move if starts first
+        if (_currentPlayer == Player2 && vsCpu)
+            FindBestMove();
+
+       
     }
 
     private void CreateGrid()
     {
         // Instantiate all cells in the board
-        for (var i = 0; i < 3; i++)
+        for (var i = 0; i < _cells.Length; i++)
         {
-            for (var j = 0; j < 3; j++)
-            {
-                var cell = Instantiate(cellPrefab, grid);
-                var cellController = cell.GetComponent<CellController>();
-                cellController.Init(i, j, this);
-                _boardControllers[cellController.name] = cellController;
-            }
+            var cell = Instantiate(cellPrefab, grid);
+            var cellController = cell.GetComponent<CellController>();
+            cellController.Init(i, this);
+            _cellControllers[i] = cellController;
         }
     }
 
     private void Clear()
     {
         // Clear the cell controller
-        _boardControllers.Clear();
+        Array.Clear(_cellControllers, 0, _cellControllers.Length);
 
         // Clear the buttons
         foreach (Transform cell in grid)
@@ -74,13 +82,9 @@ public class GameManager : SerializedMonoBehaviour
         }
 
         // Clear the played values
-        
-        for (var i = 0; i < 3; i++)
+        for (var i = 0; i < _cells.Length; i++)
         {
-            for (var j = 0; j < 3; j++)
-            {
-                cells[i][j] = "";
-            }
+            _cells[i] = "";
         }
     }
 
@@ -89,37 +93,46 @@ public class GameManager : SerializedMonoBehaviour
 
     #region Game Logic
 
-    public void PlayerMove(int row, int column)
+    public void PlayerMove(int cellId)
     {
-        _currentMove++;
-        cells[row][column] = _currentPlayer;
-        Debug.Log(cells[row][column]);
+        _cells[cellId] = _currentPlayer;
         EndTurn();
     }
 
     private void EndTurn()
     {
-        var result = GameLogic.CheckWin(cells);
+        var result = GameLogic.CheckState(_cells);
 
         if (!string.IsNullOrEmpty(result))
         {
-            Debug.Log(result == "tie" ? "Tie" : $"{result} wins!");
+            _gameState = GameState.Locked;
+            OutcomePopupController.Show(result);
             return;
         }
-        
+
         _currentPlayer = _currentPlayer == Player1 ? Player2 : Player1;
-        if (_currentPlayer == Player2 && player2IsAi)
+        if (_currentPlayer == Player2 && vsCpu)
             FindBestMove();
     }
 
     private void FindBestMove()
     {
-        var bestMove = GameLogic.BestMove(cells);
-        _boardControllers[$"{bestMove.col}_{bestMove.row}"].Move();
+        _gameState = GameState.Locked;
+        var bestMoveId = GameLogic.BestMove(_cells, easyMode);
+        StartCoroutine(PlayCpuMove(bestMoveId));
+        
     }
-    
+
+    private IEnumerator PlayCpuMove(int bestMoveId)
+    {
+        ThinkingController.Show();
+        yield return new WaitForSeconds(1.5f);
+        ThinkingController.Hide();
+        yield return new WaitForSeconds(0.7f);
+        _gameState = GameState.Active;
+        _cellControllers[bestMoveId].Move();
+        
+    }
 
     #endregion
-
-    
 }

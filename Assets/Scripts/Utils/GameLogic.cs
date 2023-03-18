@@ -1,107 +1,75 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
-using UnityEngine;
-using Random = System.Random;
-
+using System.Linq;
 
 namespace Utils
 {
-    public class GameLogic
+    public static class GameLogic
     {
         /// <summary>
-        /// Checks the provided board for winning conditions ore returns 'tie'
+        /// All the combinations on our board thar produce a winning outcome
+        /// </summary>
+        private static readonly int[,] WinConditions = new int[8, 3]
+        {
+            {0, 1, 2},
+            {3, 4, 5},
+            {6, 7, 8},
+            {0, 3, 6},
+            {1, 4, 7},
+            {2, 5, 8},
+            {0, 4, 8},
+            {2, 4, 6}
+        };
+
+        /// <summary>
+        /// Checks the provided board for winning conditions or returns a 'tie'
         /// if all moves are exhausted
         /// </summary>
-        public static string CheckWin(string[][] board)
+        public static string CheckState(string[] board, int depth = 0)
         {
-            // Debug.Log($"{board[2][0]}");
-            var winningPlayer = "";
-            // Test rows
-            if (board[0][0] == board[0][1] && board[0][0] == board[0][2] && !string.IsNullOrEmpty(board[0][0]))
-                winningPlayer = board[0][0];
-            if (board[1][0] == board[1][1] && board[1][0] == board[1][2] && !string.IsNullOrEmpty(board[1][0]))
-                winningPlayer = board[1][0];
-            if (board[2][0] == board[2][1] && board[2][0] == board[2][2] && !string.IsNullOrEmpty(board[2][0]))
-                winningPlayer = board[1][0];
-
-            // Test Columns
-            if (board[0][0] == board[1][0] && board[0][0] == board[2][0] && !string.IsNullOrEmpty(board[0][0]))
-                winningPlayer = board[0][0];
-            if (board[0][1] == board[1][1] && board[0][1] == board[2][1] && !string.IsNullOrEmpty(board[0][1]))
-                winningPlayer = board[0][1];
-            if (board[0][2] == board[1][2] && board[0][2] == board[2][2] && !string.IsNullOrEmpty(board[0][2]))
-                winningPlayer = board[0][1];
-
-            // Test Diagonals
-            if (board[0][0] == board[1][1] && board[0][0] == board[2][2] && !string.IsNullOrEmpty(board[0][0]))
-                winningPlayer = board[0][0];
-
-            // Debug.Log($"{board[2][ 0]} | {board[1][ 1]} | {board[0][2]}");
-            if (board[2][0] == board[1][1] && board[2][0] == board[0][2] && !string.IsNullOrEmpty(board[2][0]))
+            // Loop from all possible win conditions and verify if any apply
+            for (var i = 0; i < WinConditions.GetLength(0); i++)
             {
-                winningPlayer = board[0][0];
-                // Debug.Log("diagonal wins");
-            }
-
-            if (!string.IsNullOrEmpty(winningPlayer))
-            {
-                return winningPlayer;
-            }
-
-            var emptyCells = 0;
-            for (var i = 0; i < 3; i++)
-            {
-                for (var j = 0; j < 3; j++)
+                if (board[WinConditions[i, 0]] == board[WinConditions[i, 1]] && board[WinConditions[i, 1]] ==
+                    board[WinConditions[i, 2]] && !string.IsNullOrEmpty(board[WinConditions[i, 0]]))
                 {
-                    if (string.IsNullOrEmpty(board[i][j]))
-                        emptyCells++;
+                    return board[WinConditions[i, 0]];
                 }
             }
 
-            return emptyCells == 0 ? "tie" : null;
+            // Return a 'tie' if there aren't any available moves left
+            return board.Count(string.IsNullOrEmpty) == 0 ? "tie" : null;
         }
 
-        public static (int row, int col) BestMove(string[][] board)
+        /// <summary>
+        /// Calculate the next best possible move for the AI
+        /// </summary>
+        public static int BestMove(string[] board, bool easyMode)
         {
-            var open = 0;
-            var best = -50;
-            var move = (0, 0);
-            // Debug.Log("--- Score Move ---");
-            for (var i = 0; i < 3; i++)
+            var best = -100;
+            var move = -1;
+
+            for (var i = 0; i < board.Length; i++)
             {
-                for (var j = 0; j < 3; j++)
-                {
-                    Debug.Log($"{i}:{j} | {string.IsNullOrEmpty(board[i][j])}");
-                    if (string.IsNullOrEmpty(board[i][j]))
-                    {
-                        open++;
-                        board[i][j] = "O";
-                        var score = MiniMax(board, 0, false);
-                        board[i][j] = "";
-                        // Debug.Log($"{i}:{j} | {score}");
-                        if (score > best)
-                        {
-                            best = score;
-                            move = (i, j);
-                        }
-                    }
-                }
+                if (!string.IsNullOrEmpty(board[i])) continue;
+                board[i] = "O";
+                var score = MiniMax(board, 0, false, easyMode);
+                board[i] = "";
+                if (score <= best) continue;
+                best = score;
+                move = i;
             }
 
-            Debug.Log(move);
             return move;
         }
 
-        static int tests = 0;
-
-        private static int MiniMax(string[][] board, int depth, bool isMaximizing)
+        /// <summary>
+        /// Use the MiniMax algorithm in order to assign scores to all possible outcomes for each available move 
+        /// </summary>
+        private static int MiniMax(string[] board, int depth, bool isMaximizing, bool easyMode = false)
         {
-            tests++;
-            var result = CheckWin(board);
+            var result = CheckState(board, depth);
             if (!string.IsNullOrEmpty(result))
             {
-                // Debug.Log($"{tests}_  {result}");
                 return result switch
                 {
                     "X" => -10,
@@ -110,59 +78,41 @@ namespace Utils
                 };
             }
 
-            // StringBuilder sb = new StringBuilder();
-            // for(int i=0; i< board .GetLength(1); i++)
-            // {
-            //     for(int j=0; j<board .GetLength(0); j++)
-            //     {
-            //         sb.Append(board [i,j]);
-            //         sb.Append(' ');				   
-            //     }
-            //     sb.AppendLine();
-            // }
-            // Debug.Log(sb.ToString());
+            // If easyMode is on we limit the depth of the AI tree
+            if (easyMode && depth > 0)
+            {
+                return 0;
+            }
 
-            var rand = new Random();
-
+            // If the move was made by the AI we want the maximum score
             if (isMaximizing)
             {
-                var bestScore = -50;
-                for (var i = 0; i < 3; i++)
+                var maxScore = -100;
+                for (var i = 0; i < board.Length; i++)
                 {
-                    for (var j = 0; j < 3; j++)
-                    {
-                        if (string.IsNullOrEmpty(board[i][j]))
-                        {
-                            board[i][j] = "O";
-                            var score = MiniMax(board, depth + 1, false);
-                            board[i][j] = "";
-                            bestScore = Math.Max(score, bestScore);
-                        }
-                    }
+                    if (!string.IsNullOrEmpty(board[i])) continue;
+                    board[i] = "O";
+                    var score = MiniMax(board, depth + 1, false, easyMode) - (depth);
+                    board[i] = "";
+                    maxScore = Math.Max(score, maxScore);
                 }
 
-                return bestScore;
+                return maxScore;
             }
+            // Else, we want the minimum
             else
             {
-                var bestScore = 50;
-                for (var i = 0; i < 3; i++)
+                var minScore = 100;
+                for (var i = 0; i < board.Length; i++)
                 {
-                    for (var j = 0; j < 3; j++)
-                    {
-                        if (string.IsNullOrEmpty(board[i][j]))
-                        {
-                            // Debug.Log($"{i}_{j}");
-                            board[i][j] = "X";
-                            var score = MiniMax(board, depth + 1, true);
-
-                            board[i][j] = "";
-                            bestScore = Math.Min(score, bestScore);
-                        }
-                    }
+                    if (!string.IsNullOrEmpty(board[i])) continue;
+                    board[i] = "X";
+                    var score = MiniMax(board, depth + 1, true, easyMode) + (depth);
+                    board[i] = "";
+                    minScore = Math.Min(score, minScore);
                 }
 
-                return bestScore;
+                return minScore;
             }
         }
     }
