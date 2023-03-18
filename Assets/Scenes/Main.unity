@@ -1743,8 +1743,8 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   vsCpu: 1
-  cpuPlaysFirst: 1
-  easyMode: 1
+  cpuPlaysFirst: 0
+  difficultyMode: 0
   grid: {fileID: 227981484}
   cellPrefab: {fileID: 6652537628713978384, guid: 201adc19c486f314da13d9aff7fe0f8f, type: 3}
   _gameState: 0
@@ -2107,7 +2107,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  m_IsOn: 1
+  m_IsOn: 0
 --- !u!1 &1074972268
 GameObject:
   m_ObjectHideFlags: 0
@@ -3941,6 +3941,8 @@ MonoBehaviour:
   m_Options:
     m_Options:
     - m_Text: Easy Mode
+      m_Image: {fileID: 0}
+    - m_Text: Medium Mode
       m_Image: {fileID: 0}
     - m_Text: Unbeatable
       m_Image: {fileID: 0}

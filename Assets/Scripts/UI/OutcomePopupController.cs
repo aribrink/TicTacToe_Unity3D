@@ -28,6 +28,10 @@ namespace UI
         {
             switch (text)
             {
+                case "Begin":
+                    Instance.backgroundImage.color = Instance.tieColor;
+                    text = "Begin!";
+                    break;
                 case "tie":
                     Instance.backgroundImage.color = Instance.tieColor;
                     text = "TIE";

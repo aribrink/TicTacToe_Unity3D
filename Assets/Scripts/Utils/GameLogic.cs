@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Utils
@@ -43,8 +44,23 @@ namespace Utils
         /// <summary>
         /// Calculate the next best possible move for the AI
         /// </summary>
-        public static int BestMove(string[] board, bool easyMode)
+        public static int BestMove(string[] board, int difficultyMode)
         {
+            // Easy Difficulty
+            if (difficultyMode == 0)
+            {
+                var rand = new Random();
+                var availableSlots = new List<int>();
+                for (var i = 0; i < board.Length; i++)
+                {
+                    if (!string.IsNullOrEmpty(board[i])) continue;
+                    availableSlots.Add(i);
+                }
+
+                return availableSlots[rand.Next(0, availableSlots.Count)];
+            }
+            
+            // Medium or Unbeatable Mode
             var best = -100;
             var move = -1;
 
@@ -52,7 +68,7 @@ namespace Utils
             {
                 if (!string.IsNullOrEmpty(board[i])) continue;
                 board[i] = "O";
-                var score = MiniMax(board, 0, false, easyMode);
+                var score = MiniMax(board, 0, false, difficultyMode);
                 board[i] = "";
                 if (score <= best) continue;
                 best = score;
@@ -65,7 +81,7 @@ namespace Utils
         /// <summary>
         /// Use the MiniMax algorithm in order to assign scores to all possible outcomes for each available move 
         /// </summary>
-        private static int MiniMax(string[] board, int depth, bool isMaximizing, bool easyMode = false)
+        private static int MiniMax(string[] board, int depth, bool isMaximizing, int difficultyMode = 2)
         {
             var result = CheckState(board, depth);
             if (!string.IsNullOrEmpty(result))
@@ -79,7 +95,7 @@ namespace Utils
             }
 
             // If easyMode is on we limit the depth of the AI tree
-            if (easyMode && depth > 0)
+            if (difficultyMode == 1 && depth > 0)
             {
                 return 0;
             }
@@ -92,7 +108,7 @@ namespace Utils
                 {
                     if (!string.IsNullOrEmpty(board[i])) continue;
                     board[i] = "O";
-                    var score = MiniMax(board, depth + 1, false, easyMode) - (depth);
+                    var score = MiniMax(board, depth + 1, false, difficultyMode) - (depth);
                     board[i] = "";
                     maxScore = Math.Max(score, maxScore);
                 }
@@ -107,7 +123,7 @@ namespace Utils
                 {
                     if (!string.IsNullOrEmpty(board[i])) continue;
                     board[i] = "X";
-                    var score = MiniMax(board, depth + 1, true, easyMode) + (depth);
+                    var score = MiniMax(board, depth + 1, true, difficultyMode) + (depth);
                     board[i] = "";
                     minScore = Math.Min(score, minScore);
                 }

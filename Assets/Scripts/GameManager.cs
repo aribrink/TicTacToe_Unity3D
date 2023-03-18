@@ -9,32 +9,36 @@ using Utils;
 
 public class GameManager : SerializedMonoBehaviour
 {
-    [Title("Settings")] 
-    public bool vsCpu = true;
+    [Title("Settings")] public bool vsCpu = true;
     public bool cpuPlaysFirst = false;
-    public bool easyMode = true;
-    
-    [Title("References")] 
-    public Transform grid;
+    public int difficultyMode = 0;
+
+    [Title("References")] public Transform grid;
     public GameObject cellPrefab;
 
     // Public action For components that might needed
     public static Action OnRestart;
-    public enum GameState { Locked, Active }
+
+    public enum GameState
+    {
+        Locked,
+        Active
+    }
+
     public GameState _gameState = GameState.Locked;
-    
-        
+
+
     private readonly string[] _cells = new string[9];
     private readonly CellController[] _cellControllers = new CellController[9];
     private const string Player1 = "X";
     private const string Player2 = "O";
     private string _currentPlayer;
-    
+
 
     #region Basic Methods
 
     public string GetCurrentPlayer() => _currentPlayer;
-    
+
     private void Start()
     {
         Restart();
@@ -44,18 +48,18 @@ public class GameManager : SerializedMonoBehaviour
     {
         // Fire the OnRestart Event
         OnRestart?.Invoke();
-        
+
         // Reset game values
         _gameState = GameState.Active;
         _currentPlayer = cpuPlaysFirst ? Player2 : Player1;
         Clear();
         CreateGrid();
-        
-        // Initiate the cpu move if starts first
+
+        // Initiate the cpu move if it starts first
         if (_currentPlayer == Player2 && vsCpu)
             FindBestMove();
-
-       
+        else
+            OutcomePopupController.Show("Begin");
     }
 
     private void CreateGrid()
@@ -118,9 +122,8 @@ public class GameManager : SerializedMonoBehaviour
     private void FindBestMove()
     {
         _gameState = GameState.Locked;
-        var bestMoveId = GameLogic.BestMove(_cells, easyMode);
+        var bestMoveId = GameLogic.BestMove(_cells, difficultyMode);
         StartCoroutine(PlayCpuMove(bestMoveId));
-        
     }
 
     private IEnumerator PlayCpuMove(int bestMoveId)
@@ -131,7 +134,6 @@ public class GameManager : SerializedMonoBehaviour
         yield return new WaitForSeconds(0.7f);
         _gameState = GameState.Active;
         _cellControllers[bestMoveId].Move();
-        
     }
 
     #endregion

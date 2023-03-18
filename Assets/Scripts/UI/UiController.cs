@@ -14,7 +14,7 @@ namespace UI
 
         public void SetDifficulty(int state)
         {
-            _gameManager.easyMode = state == 0;
+            _gameManager.difficultyMode = state;
         }
 
         public void SetVersusCpuMode(bool state)
