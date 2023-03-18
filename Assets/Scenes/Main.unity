@@ -790,7 +790,7 @@ GameObject:
   - component: {fileID: 505713128}
   - component: {fileID: 505713129}
   m_Layer: 5
-  m_Name: UI
+  m_Name: GameSettings
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1747,7 +1747,7 @@ MonoBehaviour:
   difficultyMode: 0
   grid: {fileID: 227981484}
   cellPrefab: {fileID: 6652537628713978384, guid: 201adc19c486f314da13d9aff7fe0f8f, type: 3}
-  _gameState: 0
+  gameState: 0
 --- !u!1 &802934099
 GameObject:
   m_ObjectHideFlags: 0
@@ -2431,7 +2431,7 @@ GameObject:
   - component: {fileID: 1122235905}
   - component: {fileID: 1122235904}
   m_Layer: 5
-  m_Name: View
+  m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

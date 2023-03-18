@@ -9,11 +9,13 @@ using Utils;
 
 public class GameManager : SerializedMonoBehaviour
 {
-    [Title("Settings")] public bool vsCpu = true;
+    [Title("Settings")] 
+    public bool vsCpu = true;
     public bool cpuPlaysFirst = false;
     public int difficultyMode = 0;
 
-    [Title("References")] public Transform grid;
+    [Title("References")] 
+    public Transform grid;
     public GameObject cellPrefab;
 
     // Public action For components that might needed
@@ -24,10 +26,10 @@ public class GameManager : SerializedMonoBehaviour
         Locked,
         Active
     }
-
-    public GameState _gameState = GameState.Locked;
-
-
+    
+    // Game state of the game. Locked disables User Input
+    public GameState gameState = GameState.Locked;
+    
     private readonly string[] _cells = new string[9];
     private readonly CellController[] _cellControllers = new CellController[9];
     private const string Player1 = "X";
@@ -50,7 +52,7 @@ public class GameManager : SerializedMonoBehaviour
         OnRestart?.Invoke();
 
         // Reset game values
-        _gameState = GameState.Active;
+        gameState = GameState.Active;
         _currentPlayer = cpuPlaysFirst ? Player2 : Player1;
         Clear();
         CreateGrid();
@@ -109,7 +111,7 @@ public class GameManager : SerializedMonoBehaviour
 
         if (!string.IsNullOrEmpty(result))
         {
-            _gameState = GameState.Locked;
+            gameState = GameState.Locked;
             OutcomePopupController.Show(result);
             return;
         }
@@ -121,7 +123,7 @@ public class GameManager : SerializedMonoBehaviour
 
     private void FindBestMove()
     {
-        _gameState = GameState.Locked;
+        gameState = GameState.Locked;
         var bestMoveId = GameLogic.BestMove(_cells, difficultyMode);
         StartCoroutine(PlayCpuMove(bestMoveId));
     }
@@ -132,7 +134,7 @@ public class GameManager : SerializedMonoBehaviour
         yield return new WaitForSeconds(1.5f);
         ThinkingController.Hide();
         yield return new WaitForSeconds(0.7f);
-        _gameState = GameState.Active;
+        gameState = GameState.Active;
         _cellControllers[bestMoveId].Move();
     }
 

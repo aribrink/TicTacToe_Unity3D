@@ -41,7 +41,7 @@ namespace Controllers
 
         public void Move()
         {
-            if (_gameManager._gameState != GameManager.GameState.Active) return;
+            if (_gameManager.gameState != GameManager.GameState.Active) return;
             Set(_gameManager.GetCurrentPlayer());
             _gameManager.PlayerMove(_cellId);
         }
