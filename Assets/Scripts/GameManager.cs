@@ -9,6 +9,15 @@ using Utils;
 
 public class GameManager : SerializedMonoBehaviour
 {
+    public enum GameState
+    {
+        Locked,
+        Active
+    }
+    
+    // Game state of the game. "Locked state" disables User Input
+    public GameState gameState = GameState.Locked;
+    
     [Title("Settings")] 
     public bool vsCpu = true;
     public bool cpuPlaysFirst = false;
@@ -18,18 +27,10 @@ public class GameManager : SerializedMonoBehaviour
     public Transform grid;
     public GameObject cellPrefab;
 
-    // Public action For components that might needed
-    public static Action OnRestart;
+    // Public actions For components that might need them
+    public static Action OnGameStart;
+    public static Action OnGameEnd;
 
-    public enum GameState
-    {
-        Locked,
-        Active
-    }
-    
-    // Game state of the game. Locked disables User Input
-    public GameState gameState = GameState.Locked;
-    
     private readonly string[] _cells = new string[9];
     private readonly CellController[] _cellControllers = new CellController[9];
     private const string Player1 = "X";
@@ -43,13 +44,13 @@ public class GameManager : SerializedMonoBehaviour
 
     private void Start()
     {
-        Restart();
+        // Restart();
     }
 
     public void Restart()
     {
-        // Fire the OnRestart Event
-        OnRestart?.Invoke();
+        // Fire the OnGameStart Event
+        OnGameStart?.Invoke();
 
         // Reset game values
         gameState = GameState.Active;
@@ -97,7 +98,7 @@ public class GameManager : SerializedMonoBehaviour
     #endregion
 
 
-    #region Game Logic
+    #region Game Methods
 
     public void PlayerMove(int cellId)
     {
@@ -112,6 +113,7 @@ public class GameManager : SerializedMonoBehaviour
         if (!string.IsNullOrEmpty(result))
         {
             gameState = GameState.Locked;
+            OutcomePopupController.OnComplete = () => OnGameEnd?.Invoke(); 
             OutcomePopupController.Show(result);
             return;
         }
@@ -124,10 +126,11 @@ public class GameManager : SerializedMonoBehaviour
     private void FindBestMove()
     {
         gameState = GameState.Locked;
-        var bestMoveId = GameLogic.BestMove(_cells, difficultyMode);
-        StartCoroutine(PlayCpuMove(bestMoveId));
+        var bestMove = GameLogic.BestMove(_cells, difficultyMode);
+        StartCoroutine(PlayCpuMove(bestMove));
     }
 
+    // We use a coroutine to introduce a small delay to CPU movements
     private IEnumerator PlayCpuMove(int bestMoveId)
     {
         ThinkingController.Show();

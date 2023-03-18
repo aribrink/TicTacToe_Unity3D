@@ -32,8 +32,8 @@ namespace Controllers
         private void Set(string value)
         {
             if (!string.IsNullOrEmpty(_currentValue)) return;
-            button.interactable = false;
             _currentValue = value;
+            button.interactable = false;
             buttonImage.color = _currentValue == "X" ? xColor : oColor;
             valueLabel.text = $"{_currentValue}";
             GetComponent<RectTransform>().DOScale(Vector3.one, 0.3f).From(Vector3.zero).SetEase(Ease.OutBack);

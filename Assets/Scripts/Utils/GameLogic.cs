@@ -81,7 +81,7 @@ namespace Utils
         /// <summary>
         /// Use the MiniMax algorithm in order to assign scores to all possible outcomes for each available move 
         /// </summary>
-        private static int MiniMax(string[] board, int depth, bool isMaximizing, int difficultyMode = 2)
+        private static int MiniMax(string[] board, int depth, bool isMaximizing, int difficultyMode)
         {
             var result = CheckState(board, depth);
             if (!string.IsNullOrEmpty(result))

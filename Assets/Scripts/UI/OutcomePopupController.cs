@@ -9,19 +9,20 @@ namespace UI
 {
     public class OutcomePopupController : MonoBehaviour
     {
-        public static OutcomePopupController Instance;
-
+        private static OutcomePopupController _instance;
+        
         [Title("References")] public RectTransform root;
         public TextMeshProUGUI label;
         public Image backgroundImage;
-
         public Color xColor;
         public Color oColor;
         public Color tieColor;
 
+        public static Action OnComplete; 
+        
         private void Awake()
         {
-            Instance = this;
+            _instance = this;
         }
 
         public static void Show(string text)
@@ -29,26 +30,26 @@ namespace UI
             switch (text)
             {
                 case "Begin":
-                    Instance.backgroundImage.color = Instance.tieColor;
+                    _instance.backgroundImage.color = _instance.tieColor;
                     text = "Begin!";
                     break;
                 case "tie":
-                    Instance.backgroundImage.color = Instance.tieColor;
+                    _instance.backgroundImage.color = _instance.tieColor;
                     text = "TIE";
                     break;
                 case "X":
-                    Instance.backgroundImage.color = Instance.xColor;
+                    _instance.backgroundImage.color = _instance.xColor;
                     text = $"{text} Wins!";
                     break;
                 case "O":
-                    Instance.backgroundImage.color = Instance.oColor;
+                    _instance.backgroundImage.color = _instance.oColor;
                     text = $"{text} Wins!";
                     break;
             }
             
-            Instance.label.text = text;
-            Instance.root.DOAnchorPosX(0, 0.5f).From(new Vector2(800, 0)).SetEase(Ease.OutBack).SetDelay(0.5f);
-            Instance.root.DOAnchorPosX(-800, 0.5f).SetEase(Ease.InBack).SetDelay(3);
+            _instance.label.text = text;
+            _instance.root.DOAnchorPosX(0, 0.5f).From(new Vector2(800, 0)).SetEase(Ease.OutBack).SetDelay(0.5f);
+            _instance.root.DOAnchorPosX(-800, 0.5f).SetEase(Ease.InBack).SetDelay(3).OnComplete(()=> OnComplete?.Invoke());
         }
     }
 }

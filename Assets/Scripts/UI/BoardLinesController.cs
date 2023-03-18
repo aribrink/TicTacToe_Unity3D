@@ -12,12 +12,12 @@ public class BoardLinesController : MonoBehaviour
     
     private void OnEnable()
     {
-        GameManager.OnRestart += ShowLines;
+        GameManager.OnGameStart += ShowLines;
     }
 
     private void OnDisable()
     {
-        GameManager.OnRestart -= ShowLines;
+        GameManager.OnGameStart -= ShowLines;
     }
 
     private void ShowLines()
