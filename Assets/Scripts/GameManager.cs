@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Controllers;
 using Sirenix.OdinInspector;
+using TMPro;
 using UI;
 using UnityEngine;
 using Utils;
@@ -36,15 +37,17 @@ public class GameManager : SerializedMonoBehaviour
     private const string Player1 = "X";
     private const string Player2 = "O";
     private string _currentPlayer;
-
-
+    private Vector2 _scores = Vector2.zero;
+    private UiController _uiController;
+    
     #region Basic Methods
 
     public string GetCurrentPlayer() => _currentPlayer;
 
     private void Start()
     {
-        // Restart();
+        _uiController = FindObjectOfType<UiController>();
+        _uiController.SetScore(_scores);
     }
 
     public void Restart()
@@ -53,7 +56,6 @@ public class GameManager : SerializedMonoBehaviour
         OnGameStart?.Invoke();
 
         // Reset game values
-        gameState = GameState.Active;
         _currentPlayer = cpuPlaysFirst ? Player2 : Player1;
         Clear();
         CreateGrid();
@@ -62,7 +64,10 @@ public class GameManager : SerializedMonoBehaviour
         if (_currentPlayer == Player2 && vsCpu)
             FindBestMove();
         else
+        {
+            OutcomePopupController.OnComplete = () =>  gameState = GameState.Active;
             OutcomePopupController.Show("Begin");
+        }
     }
 
     private void CreateGrid()
@@ -113,8 +118,22 @@ public class GameManager : SerializedMonoBehaviour
         if (!string.IsNullOrEmpty(result))
         {
             gameState = GameState.Locked;
+            
+            // Show Result Popup
             OutcomePopupController.OnComplete = () => OnGameEnd?.Invoke(); 
             OutcomePopupController.Show(result);
+            
+            // Set new score
+            switch (result)
+            {
+                case "X":
+                    _scores.x += 1;
+                    break;
+                case "O":
+                    _scores.y += 1;
+                    break;
+            }
+            _uiController.SetScore(_scores);
             return;
         }
 
@@ -140,6 +159,16 @@ public class GameManager : SerializedMonoBehaviour
         gameState = GameState.Active;
         _cellControllers[bestMoveId].Move();
     }
+
+    
+
+    public void ResetScores()
+    {
+        _scores = Vector2.zero;
+        _uiController.SetScore(_scores);
+    }
+    
+    
 
     #endregion
 }

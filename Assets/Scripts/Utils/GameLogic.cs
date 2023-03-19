@@ -108,7 +108,7 @@ namespace Utils
                 {
                     if (!string.IsNullOrEmpty(board[i])) continue;
                     board[i] = "O";
-                    var score = MiniMax(board, depth + 1, false, difficultyMode) - (depth);
+                    var score = MiniMax(board, depth + 1, false, difficultyMode) - depth;
                     board[i] = "";
                     maxScore = Math.Max(score, maxScore);
                 }
@@ -123,7 +123,7 @@ namespace Utils
                 {
                     if (!string.IsNullOrEmpty(board[i])) continue;
                     board[i] = "X";
-                    var score = MiniMax(board, depth + 1, true, difficultyMode) + (depth);
+                    var score = MiniMax(board, depth + 1, true, difficultyMode) + depth;
                     board[i] = "";
                     minScore = Math.Min(score, minScore);
                 }

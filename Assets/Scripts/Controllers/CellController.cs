@@ -37,6 +37,7 @@ namespace Controllers
             buttonImage.color = _currentValue == "X" ? xColor : oColor;
             valueLabel.text = $"{_currentValue}";
             GetComponent<RectTransform>().DOScale(Vector3.one, 0.3f).From(Vector3.zero).SetEase(Ease.OutBack);
+            valueLabel.GetComponent<RectTransform>().DOScale(Vector3.one, 0.6f).From(Vector3.zero).SetEase(Ease.OutBack);
         }
 
         public void Move()

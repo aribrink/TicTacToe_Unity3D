@@ -48,8 +48,8 @@ namespace UI
             }
             
             _instance.label.text = text;
-            _instance.root.DOAnchorPosX(0, 0.5f).From(new Vector2(800, 0)).SetEase(Ease.OutBack).SetDelay(0.5f);
-            _instance.root.DOAnchorPosX(-800, 0.5f).SetEase(Ease.InBack).SetDelay(3).OnComplete(()=> OnComplete?.Invoke());
+            _instance.root.DOAnchorPosX(0, 0.5f).From(new Vector2(900, 0)).SetEase(Ease.OutBack).SetDelay(0.5f);
+            _instance.root.DOAnchorPosX(-900, 0.5f).SetEase(Ease.InBack).SetDelay(3).OnComplete(()=> OnComplete?.Invoke());
         }
     }
 }
