@@ -13,7 +13,8 @@ namespace UI
 
         private GameManager _gameManager;
 
-        [Title("References")] public Toggle settingsTab;
+        [Title("References")] 
+        public Toggle settingsTab;
         public Toggle scoresTab;
         public Button startButton;
         public Button resetScoresButton;
@@ -47,7 +48,7 @@ namespace UI
 
         private void OnDisable()
         {
-            GameManager.OnGameStart += DisableUI;
+            GameManager.OnGameStart -= DisableUI;
             GameManager.OnGameEnd -= EnableUI;
         }
 
