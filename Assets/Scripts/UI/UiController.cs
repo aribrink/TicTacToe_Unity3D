@@ -1,4 +1,5 @@
 using System;
+using DG.Tweening;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
@@ -18,6 +19,8 @@ namespace UI
         public Button resetScoresButton;
         public Toggle vsCpuToggle;
         public Toggle cpuFirstToggle;
+        public TMP_Dropdown handDropdown;
+        public RectTransform uiRect;
         public TMP_Dropdown modeDropdown;
         public TextMeshProUGUI xScoreLabel;
         public TextMeshProUGUI oScoreLabel;
@@ -42,16 +45,18 @@ namespace UI
 
         private void EnableUI()
         {
+            handDropdown.interactable = true;
             startButton.interactable = true;
             cpuFirstToggle.interactable = true;
             vsCpuToggle.interactable = true;
             modeDropdown.interactable = true;
             resetScoresButton.interactable = true;
         }
-        
+
         private void DisableUI()
         {
             scoresTab.isOn = true;
+            handDropdown.interactable = false;
             startButton.interactable = false;
             cpuFirstToggle.interactable = false;
             vsCpuToggle.interactable = false;
@@ -81,10 +86,23 @@ namespace UI
             _gameManager.cpuPlaysFirst = state;
         }
 
+        public void SetHand(int order)
+        {
+            uiRect.SetSiblingIndex(order);
+        }
+
         public void SetScore(Vector2 scores)
         {
-            xScoreLabel.text = $"{scores.x}";
-            oScoreLabel.text = $"{scores.y}";
+            if(int.Parse(xScoreLabel.text) < scores.x)
+            {
+                xScoreLabel.text = $"{scores.x}";
+                xScoreLabel.rectTransform.DOScale(Vector3.one, 0.3f).From(Vector3.zero).SetEase(Ease.OutBack);
+            }
+            if(int.Parse(oScoreLabel.text) < scores.y)
+            {
+                oScoreLabel.text = $"{scores.y}";
+                oScoreLabel.rectTransform.DOScale(Vector3.one, 0.3f).From(Vector3.zero).SetEase(Ease.OutBack);
+            }
         }
 
         public void ResetScores()
