@@ -9,11 +9,11 @@ namespace UI
 {
     public class UiController : MonoBehaviour
     {
+        #region Variables
+
         private GameManager _gameManager;
 
-        [Title("References")] 
-        public ToggleGroup tabs;
-        public Toggle settingsTab;
+        [Title("References")] public Toggle settingsTab;
         public Toggle scoresTab;
         public Button startButton;
         public Button resetScoresButton;
@@ -24,11 +24,19 @@ namespace UI
         public TMP_Dropdown modeDropdown;
         public TextMeshProUGUI xScoreLabel;
         public TextMeshProUGUI oScoreLabel;
-        
+
+        #endregion
+
+        #region Basic Methods
+
         private void Awake()
         {
             _gameManager = FindObjectOfType<GameManager>();
-            tabs.NotifyToggleOn(settingsTab);
+        }
+
+        private void Start()
+        {
+            settingsTab.isOn = true;
         }
 
         private void OnEnable()
@@ -62,8 +70,11 @@ namespace UI
             vsCpuToggle.interactable = false;
             modeDropdown.interactable = false;
             resetScoresButton.interactable = false;
-
         }
+
+        #endregion
+
+        #region UI Methods
 
         public void StartGame()
         {
@@ -93,12 +104,13 @@ namespace UI
 
         public void SetScore(Vector2 scores)
         {
-            if(int.Parse(xScoreLabel.text) < scores.x)
+            if (int.Parse(xScoreLabel.text) != (int) scores.x)
             {
                 xScoreLabel.text = $"{scores.x}";
                 xScoreLabel.rectTransform.DOScale(Vector3.one, 0.3f).From(Vector3.zero).SetEase(Ease.OutBack);
             }
-            if(int.Parse(oScoreLabel.text) < scores.y)
+
+            if (int.Parse(oScoreLabel.text) != (int) scores.y)
             {
                 oScoreLabel.text = $"{scores.y}";
                 oScoreLabel.rectTransform.DOScale(Vector3.one, 0.3f).From(Vector3.zero).SetEase(Ease.OutBack);
@@ -109,5 +121,7 @@ namespace UI
         {
             _gameManager.ResetScores();
         }
+
+        #endregion
     }
 }

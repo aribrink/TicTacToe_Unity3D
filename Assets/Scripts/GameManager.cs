@@ -10,6 +10,8 @@ using Utils;
 
 public class GameManager : SerializedMonoBehaviour
 {
+    #region Variables
+    
     public enum GameState
     {
         Locked,
@@ -39,6 +41,8 @@ public class GameManager : SerializedMonoBehaviour
     private string _currentPlayer;
     private Vector2 _scores = Vector2.zero;
     private UiController _uiController;
+    
+    #endregion
     
     #region Basic Methods
 
@@ -101,8 +105,7 @@ public class GameManager : SerializedMonoBehaviour
     }
 
     #endregion
-
-
+    
     #region Game Methods
 
     public void PlayerMove(int cellId)
